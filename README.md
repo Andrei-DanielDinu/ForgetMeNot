@@ -1,61 +1,39 @@
-# ForgetMeNot 🧠🌸
+# ForgetMeNot (Native Android) 🧠🌸📱
 
-**Spaced Repetition & Habit Memory PWA** designed to fight the Ebbinghaus forgetting curve using the Fibonacci sequence, custom mathematical equations $f(n)$, and adaptive intervals.
-
-[![GitHub Pages Deployment](https://github.com/actions/workflows/deploy.yml/badge.svg)](https://github.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+**100% Native Android App** built with **Kotlin & Jetpack Compose (Material 3)**, fully compatible with **Android 16 (API 35/36 Baklava)** and backwards compatible to Android 8.0+ (API 26).
 
 ---
 
-## ✨ Features
+## ✨ Native Features
 
-- **Fibonacci Sequence Scheduling:** Recaps scheduled on organic expanding intervals ($+1, +2, +3, +5, +8, +13, +21, +34, +55\dots$ days) to solidify complex skills (parametric design, coding, musical pieces, habits) right before forgetting sets in.
+- **Pure Native Kotlin & Jetpack Compose:** High-performance, fluid 120Hz native Android UI with edge-to-edge system bar integration and dynamic theme.
+- **Fibonacci Sequence Scheduling:** Recaps scheduled on expanding intervals ($+1, +2, +3, +5, +8, +13, +21, +34, +55\dots$ days) to fight the Ebbinghaus forgetting curve.
 - **Mathematical Equation Engine $f(n)$:**
-  - Write custom formulas: `round(pow(1.618, n))`, `fib(n)`, `round(n * 4 + 2 * sin(n))`, `round(4 * n * log(n + 1))`, etc.
-  - Generates live milestone previews with exact calendar dates.
-  - Includes presets: Fibonacci, Powers of 2, Classic Leitner (SM-2), Exponential 1.6x, Logarithmic, Wave/Cyclic, or Manual Day Lists (`1, 2, 4, 7, 15, 30`).
-- **Smart Snooze (+1 Day):** Postpone any specific reminder by +1 day without messing up or corrupting the cadence of the remaining sequence!
-- **Recap Session Journal:** Log notes, breakthrough discoveries, challenges, and exercise details directly into each milestone with recall ratings (*Easy*, *Good Effort*, *Challenging*).
-- **Interactive Calendar & Roadmap:** Full month-by-month grid displaying color-coded scheduled recaps alongside topic milestones.
-- **Google Calendar & .ics Export:**
-  - One-click `.ics` calendar download for importing directly into Google Calendar, Apple Calendar, or Outlook.
-  - Quick-add links to create individual Google Calendar events with pre-configured alarms.
-- **PWA & 100% Offline-First:** Fully functional offline with Web App Manifest, Service Worker caching, and LocalStorage data backup/restore.
+  - Evaluates custom formulas: `round(pow(1.618, n))`, `fib(n)`, `round(n * 4 + 2 * sin(n))`, `round(4 * n * log(n + 1))`, etc.
+  - Built-in presets: Fibonacci, Powers of 2, Classic Leitner (SM-2), Exponential 1.6x, Logarithmic, Wave/Cyclic, or Manual Day Lists.
+- **Smart Snooze (+1 Day):** Postpone any specific reminder by +1 day without messing up or breaking the underlying sequence cadence!
+- **Recap Notes & Exercises Journal:** Log session notes, breakthrough discoveries, and practice exercises with recall ratings (*Easy*, *Medium*, *Hard*).
+- **Interactive Calendar View:** Month-by-month grid displaying color-coded scheduled recaps.
+- **Exact Alarms & Local Notifications:** Uses `AlarmManager` and `NotificationManager` for daily review reminders.
+- **100% Offline & Private:** All data is stored locally on your device via internal Android storage. No central database, zero internet required.
 
 ---
 
-## 📱 How to Install on Android / iPhone
+## 📥 How to Download & Install the APK on Your Android Phone
 
-1. Visit the deployed GitHub Pages URL on your mobile browser (e.g., Chrome or Safari).
-2. **On Android (Chrome):**
-   - Tap the three dots menu (**`⋮`**) in the top right.
-   - Tap **"Install App"** (or **"Add to Home screen"**).
-3. **On iOS (Safari):**
-   - Tap the Share button (**⎙**).
-   - Tap **"Add to Home Screen"**.
-4. The app installs directly onto your phone's home screen, opens fullscreen with no browser address bar, and works completely offline!
+Every push to this `android-native` branch automatically compiles an installable `.apk` file via GitHub Actions!
 
----
-
-## 💻 Local Development
-
-### 1. Install Dependencies
-```bash
-npm install
-```
-
-### 2. Start Dev Server
-```bash
-npm run dev
-```
-
-### 3. Build for Production
-```bash
-npm run build
-```
+1. Open this repository on GitHub in your phone's browser:
+   `https://github.com/Andrei-DanielDinu/ForgetMeNot/actions`
+2. Tap the latest **"Build Native Android APK"** workflow run.
+3. Scroll down to **Artifacts** $\to$ tap **`ForgetMeNot-Android-APK`** to download it.
+4. Extract the zip and tap **`app-debug.apk`** to install it directly on your phone!
+   *(If prompted by Android, tap "Allow from this source" to install).*
 
 ---
 
-## 📄 License
+## 💻 Opening in Android Studio
 
-This project is licensed under the [MIT License](LICENSE) — free to use, modify, and distribute.
+1. Open Android Studio.
+2. Select **File $\to$ Open...** and choose this `ForgetMeNot` folder (on the `android-native` branch).
+3. Android Studio will automatically sync Gradle and let you run it on your emulator or physical Android phone with one click!
