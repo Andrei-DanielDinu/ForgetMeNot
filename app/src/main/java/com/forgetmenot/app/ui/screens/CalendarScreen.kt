@@ -124,7 +124,7 @@ fun CalendarScreen(
                     contentAlignment = Alignment.TopCenter
                 ) {
                     Column(
-                        horizontalAlignment = Alignment.CenterVertically,
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxSize()
                     ) {
