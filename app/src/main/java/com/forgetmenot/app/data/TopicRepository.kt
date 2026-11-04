@@ -91,6 +91,25 @@ class TopicRepository(context: Context) {
         saveTopics(current)
     }
 
+    fun exportJson(): String {
+        return gson.toJson(getTopics())
+    }
+
+    fun importJson(json: String): Boolean {
+        return try {
+            val type = object : TypeToken<List<Topic>>() {}.type
+            val imported: List<Topic>? = gson.fromJson(json, type)
+            if (!imported.isNullOrEmpty()) {
+                saveTopics(imported)
+                true
+            } else {
+                false
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     private fun seedDefaultTopics(): List<Topic> {
         val today = LocalDate.now()
         val dMinus3 = today.minusDays(3).format(DateTimeFormatter.ISO_LOCAL_DATE)

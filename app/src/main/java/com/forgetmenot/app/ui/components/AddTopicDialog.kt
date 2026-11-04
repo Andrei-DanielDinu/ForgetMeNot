@@ -1,16 +1,20 @@
 package com.forgetmenot.app.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,22 +26,35 @@ import com.forgetmenot.app.ui.theme.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+val COLOR_PALETTE = listOf(
+    "#6366F1", // Indigo
+    "#06B6D4", // Cyan
+    "#10B981", // Emerald
+    "#F59E0B", // Amber
+    "#EC4899", // Pink
+    "#8B5CF6", // Purple
+    "#3B82F6", // Blue
+    "#EF4444"  // Red
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTopicDialog(
+    initialTopic: Topic? = null,
     onDismiss: () -> Unit,
     onSave: (Topic) -> Unit
 ) {
     val todayStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
 
-    var name by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("Design & 3D") }
-    var description by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf(todayStr) }
-    var reminderTime by remember { mutableStateOf("09:00") }
-    var sequenceType by remember { mutableStateOf(SequenceType.FIBONACCI) }
-    var customEquation by remember { mutableStateOf("round(pow(1.618, n))") }
-    var equationStepsCount by remember { mutableStateOf(10) }
+    var name by remember { mutableStateOf(initialTopic?.name ?: "") }
+    var category by remember { mutableStateOf(initialTopic?.category ?: "Design & 3D") }
+    var description by remember { mutableStateOf(initialTopic?.description ?: "") }
+    var startDate by remember { mutableStateOf(initialTopic?.startDate ?: todayStr) }
+    var reminderTime by remember { mutableStateOf(initialTopic?.reminderTime ?: "09:00") }
+    var sequenceType by remember { mutableStateOf(initialTopic?.sequenceType ?: SequenceType.FIBONACCI) }
+    var customEquation by remember { mutableStateOf(initialTopic?.customEquation ?: "round(pow(1.618, n))") }
+    var equationStepsCount by remember { mutableStateOf(initialTopic?.equationStepsCount ?: 10) }
+    var selectedColor by remember { mutableStateOf(initialTopic?.colorHex ?: COLOR_PALETTE[0]) }
 
     // Live preview milestones
     val previewMilestones = remember(startDate, sequenceType, customEquation, equationStepsCount) {
@@ -59,7 +76,7 @@ fun AddTopicDialog(
             colors = CardDefaults.cardColors(containerColor = SurfaceDark),
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.9f)
+                .fillMaxHeight(0.92f)
         ) {
             Column(
                 modifier = Modifier
@@ -67,7 +84,7 @@ fun AddTopicDialog(
                     .padding(18.dp)
             ) {
                 Text(
-                    "Create Learning Topic",
+                    if (initialTopic == null) "Create Learning Topic" else "Edit Topic & Sequence",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     color = TextPrimary
@@ -104,6 +121,30 @@ fun AddTopicDialog(
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
+                    }
+
+                    item {
+                        Text("Color Accent", fontWeight = FontWeight.SemiBold, fontSize = 12.sp, color = TextPrimary)
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
+                            items(COLOR_PALETTE) { hex ->
+                                val color = parseHexColor(hex)
+                                val isSelected = selectedColor == hex
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .background(color)
+                                        .clickable { selectedColor = hex }
+                                        .then(
+                                            if (isSelected) Modifier.border(2.5.dp, Color.White, CircleShape)
+                                            else Modifier
+                                        )
+                                )
+                            }
+                        }
                     }
 
                     item {
@@ -153,7 +194,7 @@ fun AddTopicDialog(
                         Card(
                             shape = RoundedCornerShape(10.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = if (isSelected) PrimaryIndigo.copy(alpha = 0.2f) else BgDark.copy(alpha = 0.6f)
+                                containerColor = if (isSelected) PrimaryIndigo.copy(alpha = 0.25f) else BgDark.copy(alpha = 0.6f)
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -240,6 +281,7 @@ fun AddTopicDialog(
                             if (name.isNotBlank()) {
                                 onSave(
                                     Topic(
+                                        id = initialTopic?.id ?: java.util.UUID.randomUUID().toString(),
                                         name = name.trim(),
                                         category = category.trim(),
                                         description = description.trim(),
@@ -248,15 +290,16 @@ fun AddTopicDialog(
                                         sequenceType = sequenceType,
                                         customEquation = if (sequenceType == SequenceType.EQUATION) customEquation else null,
                                         equationStepsCount = equationStepsCount,
+                                        colorHex = selectedColor,
                                         milestones = previewMilestones
                                     )
                                 )
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryIndigo),
+                        colors = ButtonDefaults.buttonColors(containerColor = parseHexColor(selectedColor)),
                         shape = RoundedCornerShape(10.dp)
                     ) {
-                        Text("Save Topic")
+                        Text(if (initialTopic == null) "Save Topic" else "Update Topic")
                     }
                 }
             }

@@ -13,10 +13,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.FormatListBulleted
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -71,6 +68,8 @@ fun ForgetMeNotApp(repository: TopicRepository) {
 
     // Dialog states
     var showAddDialog by remember { mutableStateOf(false) }
+    var editingTopic by remember { mutableStateOf<Topic?>(null) }
+    var showBackupDialog by remember { mutableStateOf(false) }
     var activeNotesTopic by remember { mutableStateOf<Topic?>(null) }
     var activeNotesMilestone by remember { mutableStateOf<ReviewMilestone?>(null) }
 
@@ -100,12 +99,17 @@ fun ForgetMeNotApp(repository: TopicRepository) {
                         Spacer(modifier = Modifier.width(6.dp))
                         SuggestionChip(
                             onClick = {},
-                            label = { Text("FIBONACCI", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = PrimaryIndigo) },
+                            label = { Text("FIB", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = PrimaryIndigo) },
                             colors = SuggestionChipDefaults.suggestionChipColors(containerColor = PrimaryIndigo.copy(alpha = 0.15f))
                         )
                     }
                 },
                 actions = {
+                    // Backup Dialog Button
+                    IconButton(onClick = { showBackupDialog = true }) {
+                        Icon(Icons.Default.Download, contentDescription = "Backup and restore data", tint = TextSecondary)
+                    }
+                    // View Switcher (Schedule vs Calendar)
                     IconButton(onClick = { currentView = if (currentView == "schedule") "calendar" else "schedule" }) {
                         Icon(
                             if (currentView == "schedule") Icons.Default.CalendarMonth else Icons.Default.FormatListBulleted,
@@ -119,7 +123,10 @@ fun ForgetMeNotApp(repository: TopicRepository) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showAddDialog = true },
+                onClick = {
+                    editingTopic = null
+                    showAddDialog = true
+                },
                 containerColor = PrimaryIndigo,
                 contentColor = TextPrimary,
                 shape = RoundedCornerShape(16.dp)
@@ -211,6 +218,10 @@ fun ForgetMeNotApp(repository: TopicRepository) {
                                 repository.snoozeMilestone(topicId, milestoneId, 1)
                                 refreshTopics()
                             },
+                            onEdit = { t ->
+                                editingTopic = t
+                                showAddDialog = true
+                            },
                             onDelete = { topicId ->
                                 repository.deleteTopic(topicId)
                                 refreshTopics()
@@ -223,11 +234,30 @@ fun ForgetMeNotApp(repository: TopicRepository) {
             // Dialogs
             if (showAddDialog) {
                 AddTopicDialog(
-                    onDismiss = { showAddDialog = false },
-                    onSave = { newTopic ->
-                        repository.addOrUpdateTopic(newTopic)
+                    initialTopic = editingTopic,
+                    onDismiss = {
+                        showAddDialog = false
+                        editingTopic = null
+                    },
+                    onSave = { updatedTopic ->
+                        repository.addOrUpdateTopic(updatedTopic)
                         refreshTopics()
                         showAddDialog = false
+                        editingTopic = null
+                    }
+                )
+            }
+
+            if (showBackupDialog) {
+                BackupDialog(
+                    jsonBackup = repository.exportJson(),
+                    onDismiss = { showBackupDialog = false },
+                    onRestore = { json ->
+                        val success = repository.importJson(json)
+                        if (success) {
+                            refreshTopics()
+                        }
+                        success
                     }
                 )
             }

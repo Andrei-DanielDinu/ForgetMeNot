@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Snooze
@@ -14,12 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.forgetmenot.app.data.ReviewMilestone
 import com.forgetmenot.app.data.Topic
 import com.forgetmenot.app.ui.theme.*
+import com.forgetmenot.app.utils.CalendarExportHelper
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -30,12 +33,28 @@ data class DueItem(
     val daysDiff: Long
 )
 
+fun parseHexColor(hex: String?, fallback: Color = PrimaryIndigo): Color {
+    if (hex.isNullOrBlank()) return fallback
+    return try {
+        val clean = hex.removePrefix("#")
+        val colorInt = clean.toLong(16).toInt()
+        if (clean.length == 6) {
+            Color(colorInt or -0x1000000)
+        } else {
+            Color(colorInt)
+        }
+    } catch (e: Exception) {
+        fallback
+    }
+}
+
 @Composable
 fun TodayDueSection(
     topics: List<Topic>,
     onOpenNotes: (Topic, ReviewMilestone) -> Unit,
     onSnooze: (String, String) -> Unit
 ) {
+    val context = LocalContext.current
     val today = LocalDate.now()
     val dueItems = mutableListOf<DueItem>()
 
@@ -103,6 +122,8 @@ fun TodayDueSection(
 
         dueItems.forEach { (topic, milestone, diff) ->
             val isOverdue = diff < 0
+            val topicColor = parseHexColor(topic.colorHex)
+
             Card(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = SurfaceDark),
@@ -116,13 +137,22 @@ fun TodayDueSection(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = topic.name,
-                            fontWeight = FontWeight.Bold,
-                            color = TextPrimary,
-                            fontSize = 15.sp,
-                            modifier = Modifier.weight(1f)
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                            Box(
+                                modifier = Modifier
+                                    .size(9.dp)
+                                    .clip(CircleShape)
+                                    .background(topicColor)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = topic.name,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary,
+                                fontSize = 15.sp
+                            )
+                        }
+
                         SuggestionChip(
                             onClick = {},
                             label = {
@@ -152,7 +182,7 @@ fun TodayDueSection(
                     Text(
                         text = "Stage ${milestone.stageIndex} (Day +${milestone.intervalFromStart})" +
                                 if (milestone.snoozedDays > 0) " • Snoozed +${milestone.snoozedDays}d" else "",
-                        color = PrimaryIndigo,
+                        color = topicColor,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -164,25 +194,35 @@ fun TodayDueSection(
                         horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // Google Calendar Quick-Add Button
+                        IconButton(
+                            onClick = { CalendarExportHelper.openGoogleCalendar(context, topic, milestone) },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(Icons.Default.CalendarMonth, contentDescription = "Add to Google Calendar", tint = SecondaryCyan, modifier = Modifier.size(18.dp))
+                        }
+
+                        Spacer(modifier = Modifier.width(4.dp))
+
                         OutlinedButton(
                             onClick = { onSnooze(topic.id, milestone.id) },
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.height(36.dp),
-                            contentPadding = PaddingValues(horizontal = 12.dp)
+                            contentPadding = PaddingValues(horizontal = 10.dp)
                         ) {
                             Icon(Icons.Default.Snooze, contentDescription = null, modifier = Modifier.size(14.dp), tint = AccentAmber)
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("Snooze +1d", color = AccentAmber, fontSize = 12.sp)
                         }
 
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
 
                         Button(
                             onClick = { onOpenNotes(topic, milestone) },
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.height(36.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryIndigo),
-                            contentPadding = PaddingValues(horizontal = 14.dp)
+                            colors = ButtonDefaults.buttonColors(containerColor = topicColor),
+                            contentPadding = PaddingValues(horizontal = 12.dp)
                         ) {
                             Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
