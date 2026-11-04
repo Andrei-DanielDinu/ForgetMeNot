@@ -9,19 +9,19 @@
     <meta name="apple-mobile-web-app-title" content="ForgetMeNot" />
     <meta name="description" content="Spaced repetition reminders powered by the Fibonacci sequence to fight the forgetting curve." />
     
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="apple-touch-icon" href="./icon-192.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
     
     <title>ForgetMeNot | Spaced Repetition Reminders</title>
   </head>
   <body class="bg-slate-900 text-slate-100 min-h-screen">
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="./src/main.tsx"></script>
     <script>
       if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(err => {
+          navigator.serviceWorker.register('./sw.js').catch(err => {
             console.log('SW registration skipped:', err);
           });
         });

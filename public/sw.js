@@ -1,11 +1,11 @@
-const CACHE_NAME = 'forgetmenot-cache-v2';
+const CACHE_NAME = 'forgetmenot-cache-v4';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/favicon.svg',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/manifest.webmanifest'
+  './',
+  './index.html',
+  './favicon.svg',
+  './icon-192.png',
+  './icon-512.png',
+  './manifest.webmanifest'
 ];
 
 self.addEventListener('install', (event) => {
@@ -35,7 +35,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match('/index.html'))
+      fetch(event.request).catch(() => caches.match('./index.html'))
     );
     return;
   }
